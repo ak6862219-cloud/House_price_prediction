@@ -1,12 +1,12 @@
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from jinja2 import Environment, FileSystemLoader
 import pickle
 import numpy as np
 
 app = FastAPI()
 
-templates = Jinja2Templates(directory="templates")
+env = Environment(loader=FileSystemLoader("templates"))
 
 # Load trained model
 with open("model.pkl", "rb") as f:
@@ -19,10 +19,8 @@ with open("scaler.pkl", "rb") as f:
 
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
-    return templates.TemplateResponse(
-        "index.html",
-        {"request": request}
-    )
+    template = env.get_template("index.html")
+    return HTMLResponse(content=template.render())
 
 
 @app.post("/predict", response_class=HTMLResponse)
@@ -46,7 +44,8 @@ def predict(
         Population,
         AveOccup,
         Latitude,
-        Longitude
+        Longitude,
+        0.0  # placeholder for 'PRICE' column present in scaler/model training
     ]])
 
     # Scale input
@@ -58,11 +57,8 @@ def predict(
     # Dataset target is in $100,000 units
     price = prediction * 100000
 
-    return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request,
-            "prediction": round(float(prediction), 4),
-            "price": f"${price:,.2f}"
-        }
-    )
+    template = env.get_template("index.html")
+    return HTMLResponse(content=template.render(
+        prediction=round(float(prediction), 4),
+        price=f"${price:,.2f}"
+    ))
