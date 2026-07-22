@@ -1,4 +1,4 @@
-# House_price_prediction
+
 # House Price Prediction 🏠
 
 This is a Machine Learning project that predicts house prices based on different features of a house and its location.
