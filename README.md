@@ -60,8 +60,8 @@ House_price_prediction/
 ├── scaler.pkl
 ├── README.md
 │
-└── templates/
-    └── index.html
+└──index.html
+    
 ```
 
 ## How to Run
