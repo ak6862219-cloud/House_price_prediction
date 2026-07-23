@@ -5,9 +5,6 @@ import numpy as np
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse
 from jinja2 import Environment, FileSystemLoader
-from sklearn.datasets import make_regression
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import StandardScaler
 
 app = FastAPI()
 env = Environment(loader=FileSystemLoader("templates"))
@@ -16,38 +13,12 @@ MODEL_PATH = Path("model.pkl")
 SCALER_PATH = Path("scaler.pkl")
 
 
-def train_and_save_model():
-    X, y = make_regression(
-        n_samples=2000,
-        n_features=8,
-        noise=25,
-        random_state=42,
-    )
-
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-
-    model = LinearRegression()
-    model.fit(X_scaled, y)
-
-    with MODEL_PATH.open("wb") as f:
-        pickle.dump(model, f)
-
-    with SCALER_PATH.open("wb") as f:
-        pickle.dump(scaler, f)
-
-    return model, scaler
-
-
 def load_model_and_scaler():
-    if MODEL_PATH.exists() and SCALER_PATH.exists():
-        with MODEL_PATH.open("rb") as f:
-            model = pickle.load(f)
-        with SCALER_PATH.open("rb") as f:
-            scaler = pickle.load(f)
-        return model, scaler
-
-    return train_and_save_model()
+    with MODEL_PATH.open("rb") as f:
+        model = pickle.load(f)
+    with SCALER_PATH.open("rb") as f:
+        scaler = pickle.load(f)
+    return model, scaler
 
 
 model, scaler = load_model_and_scaler()
